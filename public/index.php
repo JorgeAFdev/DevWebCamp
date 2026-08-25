@@ -3,8 +3,9 @@
 require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
-use Controllers\APIEvents;
 use Controllers\APIGifts;
+use Controllers\APISpots;
+use Controllers\APIEvents;
 use Controllers\APISpeakers;
 use Controllers\AuthController;
 use Controllers\GiftsController;
@@ -64,6 +65,8 @@ $router->get('/api/events-schedule', [APIEvents::class, 'index']);
 $router->get('/api/speakers', [APISpeakers::class, 'index']);
 $router->get('/api/speaker', [APISpeakers::class, 'speaker']);
 $router->get('/api/gifts', [APIGifts::class, 'index']);
+$router->get('/api/less-spots', [APISpots::class, 'less']);
+$router->get('/api/more-spots', [APISpots::class, 'more']);
 
 // User Registration
 $router->get('/complete-registration', [RegistrationController::class, 'create']);
@@ -80,6 +83,7 @@ $router->get('/', [PagesController::class, 'index']);
 $router->get('/about', [PagesController::class, 'about']);
 $router->get('/packages', [PagesController::class, 'packages']);
 $router->get('/workshops-conferences', [PagesController::class, 'conferences']);
+$router->get('/details', [PagesController::class, 'details']);
 $router->get('/404', [PagesController::class, 'error']);
 
 $router->checkRoutes();
