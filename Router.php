@@ -40,14 +40,14 @@ class Router
 
         // Read what we pass to the view
         foreach ($data as $key => $value) {
-            $$key = $value; 
+            $$key = $value;
         }
 
         ob_start();
 
         // Include the view in the layout
         include_once __DIR__ . "/views/$view.php";
-        $content = ob_get_clean(); 
+        $content = ob_get_clean();
 
         // show the layout according to the url
         $currentUrl = strtok($_SERVER['REQUEST_URI'], '?') ?? '/'; 

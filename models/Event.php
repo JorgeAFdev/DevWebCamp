@@ -52,4 +52,3 @@ class Event extends ActiveRecord {
         return self::$alerts;
     }
 }
-
