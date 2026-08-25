@@ -31,15 +31,22 @@ class RegisteredController {
         }
 
         $registered = Registration::paginate($records_per_page, $pagination->offset());
+        $registeredData = [];
         foreach($registered as $record) {
-            $record->user = User::find($record->user_id);
-            $record->package = Package::find($record->package_id);
-            $record->pay = Registration::where('pay_id', $record->pay_id);
+            $user = User::find($record->user_id);
+            $package = Package::find($record->package_id);
+            $pay = Registration::where('pay_id', $record->pay_id);
+            $registeredData[] = [
+                'registered' => $registered,
+                'user' => $user,
+                'package' => $package,
+                'pay' => $pay
+            ];
         }
 
         $router->render('admin/registered/index', [
             'title' => 'Registered users',
-            'registered' => $registered,
+            'registeredData' => $registeredData,
             'pagination' => $pagination->pagination()
         ]);
     }

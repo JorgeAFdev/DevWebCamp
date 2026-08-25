@@ -8,7 +8,7 @@
 </div>
 
 <div class="dashboard__container">
-    <?php if(!empty($events)) { ?>
+    <?php if(!empty($formatted_events)) { ?>
         <div class="table-wrapper">
             <table class="table">
                 <thead class="table__thead">
@@ -22,28 +22,28 @@
                 </thead>
 
                 <tbody class="table__tbody">
-                    <?php foreach($events as $event) { ?>
+                    <?php foreach($formatted_events as $event) { ?>
                         <tr class="table__tr">
                             <td class="table__td">
-                                <?php echo $event->name; ?>
+                                <?php echo $event['event']->name; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $event->category->name; ?>
+                                <?php echo $event['category']->name; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $event->day->name . ", " . $event->time->time; ?>
+                                <?php echo $event['day']->name . ", " . $event['time']->time; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $event->speaker->name . " " . $event->speaker->surname; ?>
+                                <?php echo $event['speaker']->name . " " . $event['speaker']->surname; ?>
                             </td>
-                            <td class="table__td--actions">
-                                <a class="table__action table__action--edit" href="/admin/events/edit?id=<?php echo $event->id; ?>">
+                            <td class="table__td--actions table__td--events">
+                                <a class="table__action table__action--edit" href="/admin/events/edit?id=<?php echo $event['event']->id; ?>">
                                     <i class="fa-solid fa-pencil"></i>
                                     Edit
                                 </a>
 
                                 <form method="POST" class="table__form" action="/admin/events/delete">
-                                    <input type="hidden" name="id" value="<?php echo sanitizeHTML($event->id); ?>">
+                                    <input type="hidden" name="id" value="<?php echo sanitizeHTML($event['event']->id); ?>">
                                     <button class="table__action table__action--delete" type="submit">
                                         <i class="fa-solid fa-circle-xmark"></i>
                                         Delete

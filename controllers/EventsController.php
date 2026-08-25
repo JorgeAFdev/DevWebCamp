@@ -14,6 +14,7 @@ class EventsController {
     public static function index(Router $router) {
         if(!is_admin()) {
             header('Location: /sign-in');
+            return;
         }
         $current_page = $_GET['page'] ?? '';
         $current_page = filter_var($current_page, FILTER_VALIDATE_INT);
@@ -27,18 +28,25 @@ class EventsController {
         $pagination = new Pagination($current_page, $records_per_page, $total);
 
         $events = Event::paginate($records_per_page, $pagination->offset());
+        $formatted_events = [];
 
         foreach($events as $event) {
-            $event->category = Category::find($event->category_id);
-            $event->day = Day::find($event->day_id);
-            $event->time = Time::find($event->time_id);
-            $event->speaker = Speaker::find($event->speaker_id);
-            
+            $category = Category::find($event->category_id);
+            $day = Day::find($event->day_id);
+            $time = Time::find($event->time_id);
+            $speaker = Speaker::find($event->speaker_id);
+            $formatted_events[] = [
+                'event' => $event,
+                'category' => $category,
+                'day' => $day,
+                'time' => $time,
+                'speaker' => $speaker
+            ];
         }    
 
         $router->render('admin/events/index', [
             'title' => 'Conferences and Workshops',
-            'events' => $events,
+            'formatted_events' => $formatted_events,
             'pagination' => $pagination->pagination()
         ]);
     }
@@ -46,6 +54,7 @@ class EventsController {
     public static function create(Router $router) {
         if(!is_admin()) {
             header('Location: /sign-in');
+            return;
         }
         $alerts = [];
 
@@ -81,6 +90,7 @@ class EventsController {
     public static function edit(Router $router) {
         if(!is_admin()) {
             header('Location: /sign-in');
+            return;
         }
         $alerts = [];
 

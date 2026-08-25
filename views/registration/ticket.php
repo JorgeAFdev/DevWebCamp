@@ -4,14 +4,14 @@
 
     <div class="ticket__virtual">
 
-        <div class="ticket ticket--<?php echo strtolower($registration->package->name);?> ticket--access">
+        <div class="ticket ticket--<?php echo strtolower($registration['package']->name);?> ticket--access">
             <div class="ticket__content">
                 <h4 class="ticket__logo">DevWebCamp</h4>
-                <p class="ticket__type"><?php echo $registration->package->name; ?></p>
-                <p class="ticket__name"><?php echo $registration->user->name . " " . $registration->user->surname; ?></p>
+                <p class="ticket__type"><?php echo $registration['package']->name; ?></p>
+                <p class="ticket__name"><?php echo $registration['user']->name . " " . $registration['user']->surname; ?></p>
             </div>
 
-            <p class="ticket__token"><?php echo '#' . $registration->token; ?></p>
+            <p class="ticket__token"><?php echo '#' . $registration['registration']->token; ?></p>
         </div>
     </div>
 </main>

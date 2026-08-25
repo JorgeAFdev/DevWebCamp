@@ -34,7 +34,7 @@
                 <picture>
                     <source srcset="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $speaker->image; ?>.webp" type="image/webp">
                     <source srcset="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $speaker->image; ?>.png" type="image/png">
-                    <img class="speaker__image" loading="lazy" width="200" height="300" src="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $event->speaker->image; ?>.png" alt="Speaker Image">
+                    <img class="speaker__image" loading="lazy" width="200" height="300" src="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $speaker->image; ?>.png" alt="Speaker Image">
                 </picture>
 
                 <div class="speaker__info">
@@ -59,31 +59,31 @@
 
                         <?php if (!empty($socials->twitter)) { ?>
                             <a class="speaker-socials__link" rel="noopener noreferrer" target="_blank" href="<?php echo $socials->twitter; ?>">
-                                <span class="speaker-socials__hide">Facebook</span>
+                                <span class="speaker-socials__hide">Twitter</span>
                             </a>
                         <?php } ?>
 
                         <?php if (!empty($socials->youtube)) { ?>
                             <a class="speaker-socials__link" rel="noopener noreferrer" target="_blank" href="<?php echo $socials->youtube; ?>">
-                                <span class="speaker-socials__hide">Facebook</span>
+                                <span class="speaker-socials__hide">Youtube</span>
                             </a>
                         <?php } ?>
 
                         <?php if (!empty($socials->instagram)) { ?>
                             <a class="speaker-socials__link" rel="noopener noreferrer" target="_blank" href="<?php echo $socials->instagram; ?>">
-                                <span class="speaker-socials__hide">Facebook</span>
+                                <span class="speaker-socials__hide">Instagram</span>
                             </a>
                         <?php } ?>
 
                         <?php if (!empty($socials->tiktok)) { ?>
                             <a class="speaker-socials__link" rel="noopener noreferrer" target="_blank" href="<?php echo $socials->tiktok; ?>">
-                                <span class="speaker-socials__hide">Facebook</span>
+                                <span class="speaker-socials__hide">Tiktok</span>
                             </a>
                         <?php } ?>
 
                         <?php if (!empty($socials->github)) { ?>
                             <a class="speaker-socials__link" rel="noopener noreferrer" target="_blank" href="<?php echo $socials->github; ?>">
-                                <span class="speaker-socials__hide">Facebook</span>
+                                <span class="speaker-socials__hide">Github</span>
                             </a>
                         <?php } ?>
                     </div>

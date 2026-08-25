@@ -46,13 +46,13 @@
         
     </div>
 
-    <?php if(isset($speaker->current_image)) { ?>
+    <?php if(isset($current_image)) { ?>
         <p class="form__text">Current Image:</p>
         <div class="form__image">
             <picture>
-                <source srcset="<?php echo $_ENV['HOST'] . '/img/speakers/' . $speaker->image; ?>.webp" type="image/webp">
-                <source srcset="<?php echo $_ENV['HOST'] . '/img/speakers/' . $speaker->image; ?>.png" type="image/png">
-                <img src="<?php echo $_ENV['HOST'] . '/img/speakers/' . $speaker->image; ?>.png" alt="Speaker Image">
+                <source srcset="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $current_image; ?>.webp" type="image/webp">
+                <source srcset="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $current_image; ?>.png" type="image/png">
+                <img src="<?php echo $_ENV['APP_URL'] . '/img/speakers/' . $current_image; ?>.png" alt="Speaker Image">
             </picture>
         </div>
     <?php } ?>

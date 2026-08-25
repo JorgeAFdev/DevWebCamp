@@ -1,4 +1,5 @@
 <?php
+
 namespace Controllers;
 
 use Model\Day;
@@ -13,10 +14,12 @@ use Model\EventsRegistrations;
 use Model\Gift;
 use Model\Registration;
 
-class RegistrationController {
+class RegistrationController
+{
 
-    public static function create(Router $router) {
-        if(!is_auth()) {
+    public static function create(Router $router)
+    {
+        if (!is_auth()) {
             header('Location: /');
             return;
         }
@@ -24,12 +27,12 @@ class RegistrationController {
         // Verify if user is registered
         $registration = Registration::where('user_id', $_SESSION['id']);
 
-        if(isset($registration) && ($registration->package_id === '3' || $registration->package_id === '2')) {
+        if (isset($registration) && ($registration->package_id === '3' || $registration->package_id === '2')) {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
-        if(isset($registration) && $registration->package_id === "1") {
+        if (isset($registration) && $registration->package_id === "1") {
             header('Location: /complete-registration/conferences');
             return;
         }
@@ -39,21 +42,22 @@ class RegistrationController {
         ]);
     }
 
-    public static function free() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!is_auth()) {
+    public static function free()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!is_auth()) {
                 header('Location: /signin');
             }
 
             // Verify if user is registered
             $registration = Registration::where('user_id', $_SESSION['id']);
-            if(isset($registration) && $registration->package_id === '3') {
+            if (isset($registration) && $registration->package_id === '3') {
                 header('Location: /ticket?id=' . urlencode($registration->token));
                 return;
             }
 
             $token = substr(md5(uniqid(rand(), true)), 0, 8);
-            
+
             // Create registration
             $data = [
                 'package_id' => 3,
@@ -65,49 +69,57 @@ class RegistrationController {
             $registration = new Registration($data);
             $result = $registration->save();
 
-            if($result) {
+            if ($result) {
                 header('Location: /ticket?id=' . urlencode($registration->token));
                 return;
             }
         }
     }
 
-    public static function ticket(Router $router) {
+    public static function ticket(Router $router)
+    {
 
         // Validate URL
         $id = $_GET['id'];
 
-        if(!$id || strlen($id) !== 8) {
+        if (!$id || strlen($id) !== 8) {
             header('Location: /');
             return;
         }
 
         // Buscar en la DB
         $registration = Registration::where('token', $id);
-        if(!$registration) {
+        if (!$registration) {
             header('Location: /');
             return;
         }
 
-        // Fill  in the reference tables
-        $registration->user = User::find($registration->user_id);
-        $registration->package = Package::find($registration->package_id);
+        // Fill in the reference tables
+        $user = User::find($registration->user_id);
+        $package = Package::find($registration->package_id);
+
+        $registrationData = [
+            'registration' => $registration,
+            'user' => $user,
+            'package' => $package,
+        ];
 
         $router->render('registration/ticket', [
             'title' => 'Attendance at DevWebCamp',
-            'registration' => $registration
+            'registration' => $registrationData
         ]);
     }
 
-    public static function pay() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!is_auth()) {
+    public static function pay()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!is_auth()) {
                 header('Location: /signin');
                 return;
             }
 
             // Validate that Post does not come empty  
-            if(empty($_POST)) {
+            if (empty($_POST)) {
                 echo json_encode([]);
                 return;
             }
@@ -128,9 +140,10 @@ class RegistrationController {
             }
         }
     }
-    
-    public static function conferences(Router $router) {
-        if(!is_auth()) {
+
+    public static function conferences(Router $router)
+    {
+        if (!is_auth()) {
             header('Location: /signin');
             return;
         }
@@ -139,18 +152,18 @@ class RegistrationController {
         $user_id = $_SESSION['id'];
         $registration = Registration::where('user_id', $user_id);
 
-        if(isset($registration) && $registration->package_id === "2") {
+        if (isset($registration) && $registration->package_id === "2") {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
-        if($registration->package_id !== "1") {
+        if ($registration->package_id !== "1") {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
         // Redirect to virtual ticket in case registration is finished
-        if($registration->gift_id !== "1") {
+        if ($registration->gift_id !== "1") {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
@@ -158,66 +171,73 @@ class RegistrationController {
         $events = Event::order('time_id', 'ASC');
 
         $formatted_events = [];
-        foreach($events as $event) {
-            $event->category = Category::find($event->category_id);
-            $event->day = Day::find($event->day_id);
-            $event->time = Time::find($event->time_id);
-            $event->speaker = Speaker::find($event->speaker_id);
-            
+        foreach ($events as $event) {
+            $category = Category::find($event->category_id);
+            $day = Day::find($event->day_id);
+            $time = Time::find($event->time_id);
+            $speaker = Speaker::find($event->speaker_id);
 
-            if($event->day_id === '1' && $event->category_id === '1') {
-                $formatted_events['conferences_f'][] = $event;
+            $formatted_event = [
+                'event' => $event,
+                'category' => $category,
+                'day' => $day,
+                'time' => $time,
+                'speaker' => $speaker
+            ];
+
+            if ($event->day_id === '1' && $event->category_id === '1') {
+                $formatted_events['conferences_f'][] = $formatted_event;
             }
 
-            if($event->day_id === '2' && $event->category_id === '1') {
-                $formatted_events['conferences_s'][] = $event;
+            if ($event->day_id === '2' && $event->category_id === '1') {
+                $formatted_events['conferences_s'][] = $formatted_event;
             }
 
-            if($event->day_id === '1' && $event->category_id === '2') {
-                $formatted_events['workshops_f'][] = $event;
+            if ($event->day_id === '1' && $event->category_id === '2') {
+                $formatted_events['workshops_f'][] = $formatted_event;
             }
 
-            if($event->day_id === '2' && $event->category_id === '2') {
-                $formatted_events['workshops_s'][] = $event;
+            if ($event->day_id === '2' && $event->category_id === '2') {
+                $formatted_events['workshops_s'][] = $formatted_event;
             }
         }
 
         $gifts = Gift::all('ASC');
 
-        // Creating the registration with $_POST
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
-            if(!is_auth()) {
+        // Creating the registration with $_POST from the API
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if (!is_auth()) {
                 header('Location: /signin');
                 return;
             }
 
             $events = explode(',', $_POST['events_id']);
-            if(empty($events)) {
+            if (empty($events)) {
                 echo json_encode(['result' => false]);
                 return;
             }
 
             // Get user registration
             $registration = Registration::where('user_id', $_SESSION['id']);
-            if(!isset($registration) || $registration->package_id !== '1') {
+            if (!isset($registration) || $registration->package_id !== '1') {
                 echo json_encode(['result' => false]);
                 return;
             }
 
             $events_array = [];
             // Validate the availability of the selected events
-            foreach($events as $event_id) {
+            foreach ($events as $event_id) {
                 $event = Event::find($event_id);
                 // Check that the event exists
-                if(!isset($event) || $event->spots === "0") {
+                if (!isset($event) || $event->spots === "0") {
                     echo json_encode(['result' => false]);
                     return;
                 }
                 $events_array[] = $event;
             }
 
-            foreach($events_array as $event) {
+            foreach ($events_array as $event) {
                 $event->spots -= 1;
                 $event->save();
 
@@ -235,9 +255,9 @@ class RegistrationController {
             $registration->synchronize(['gift_id' => $_POST['gift_id']]);
             $result = $registration->save();
 
-            if($result) {
+            if ($result) {
                 echo json_encode([
-                    'result' => $result, 
+                    'result' => $result,
                     'token' => $registration->token
                 ]);
             } else {

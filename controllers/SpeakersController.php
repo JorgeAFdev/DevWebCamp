@@ -110,6 +110,7 @@ class SpeakersController {
 
         if(!$id) {
             header('Location: /admin/speakers');
+            return;
         }
 
         // Get Speaker to Edit
@@ -117,9 +118,10 @@ class SpeakersController {
 
         if(!$speaker) {
             header('Location: /admin/speakers');
+            return;
         }
 
-        $speaker->current_image = $speaker->image;
+        $current_image = $speaker->image;
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Read the image
@@ -137,7 +139,7 @@ class SpeakersController {
                 $image_name = md5(uniqid(rand(), true));
                 $_POST['image'] = $image_name;
             } else {
-                $_POST['image'] = $speaker->current_image;
+                $_POST['image'] = $current_image;
             }
 
             $_POST['socials'] = json_encode($_POST['socials'], JSON_UNESCAPED_SLASHES);
@@ -164,6 +166,7 @@ class SpeakersController {
             'title' => 'Update Speaker',
             'alerts' => $alerts,
             'speaker' => $speaker,
+            'current_image' => $current_image,
             'socials' => json_decode($speaker->socials)
         ]);
     }

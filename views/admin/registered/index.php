@@ -1,7 +1,7 @@
 <h2 class="dashboard__heading"><?php echo $title; ?></h2>
 
 <div class="dashboard__container">
-    <?php if(!empty($registered)) { ?>
+    <?php if(!empty($registeredData)) { ?>
         <div class="table-wrapper">
             <table class="table">
                 <thead class="table__thead">
@@ -14,19 +14,19 @@
                 </thead>
 
                 <tbody class="table__tbody">
-                    <?php foreach($registered as $record) { ?>
+                    <?php foreach($registeredData as $data) { ?>
                         <tr class="table__tr">
                             <td class="table__td">
-                                <?php echo $record->user->name . " " . $record->user->surname; ?>
+                                <?php echo $data['user']->name . " " . $data['user']->surname; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $record->user->email; ?>
+                                <?php echo $data['user']->email; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $record->package->name; ?>
+                                <?php echo $data['package']->name; ?>
                             </td>
                             <td class="table__td">
-                                <?php echo $record->pay->pay_id; ?>
+                                <?php echo $data['pay']->pay_id; ?>
                             </td>
                         </tr>
                     <?php } ?>

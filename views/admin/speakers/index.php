@@ -28,7 +28,7 @@
                             <td class="table__td">
                                 <?php echo $speaker->city . ", " . $speaker->country; ?>
                             </td>
-                            <td class="table__td--actions">
+                            <td class="table__td--actions table__td--speakers">
                                 <a class="table__action table__action--edit" href="/admin/speakers/edit?id=<?php echo $speaker->id; ?>">
                                     <i class="fa-solid fa-user-pen"></i>
                                     Edit
