@@ -47,7 +47,12 @@
             <label for="gift" class="registration__label">Select gift</label>
             <select id="gift" class="registration__select">
                 <option value="" selected disabled>-- Select your gift --</option>
-                <?php foreach($gifts as $gift) {?>
+                <?php foreach ($gifts as $gift) {
+                    // Skip gift with ID 1
+                    if ($gift->id === "1") {
+                        continue;
+                    }
+                ?>
                     <option value="<?php echo sanitizeHTML($gift->id); ?>"><?php echo $gift->name; ?></option>
                 <?php } ?>
             </select>
