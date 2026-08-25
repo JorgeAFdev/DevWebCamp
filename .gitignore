@@ -4,5 +4,4 @@ vendor/
 gulpfile.js
 package.json
 package-lock.json
-composer.lock
 .env
