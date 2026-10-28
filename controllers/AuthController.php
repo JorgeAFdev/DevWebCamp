@@ -145,9 +145,13 @@ class AuthController
     }
     public static function reset_password(Router $router)
     {
-        $token = sanitizeHTML($_GET['token']);
+        $token = sanitizeHTML($_GET['token'] ?? '');
         $show = true;
-        if (!$token) header('Location: /');
+        // Confirmed users have an empty token, so an empty one must never reach the lookup
+        if (!$token) {
+            header('Location: /');
+            return;
+        }
 
         // identufy user by Token
         $user = User::where('token', $token);
@@ -157,7 +161,7 @@ class AuthController
             $show = false;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
             // Add new password
             $user->synchronize($_POST);
 
@@ -198,10 +202,14 @@ class AuthController
     public static function confirm(Router $router)
     {
         $alerts = [];
-        $token = sanitizeHTML($_GET['token']);
-        $user = User::where('token', $token);
+        $token = sanitizeHTML($_GET['token'] ?? '');
+        // Confirmed users have an empty token, so an empty one must never reach the lookup
+        if (!$token) {
+            header('Location: /');
+            return;
+        }
 
-        if (!$token) header('Location: /');
+        $user = User::where('token', $token);
 
         if (empty($user)) {
             // Show error message

@@ -10,7 +10,7 @@ use Model\User;
 class RegisteredController {
 
     public static function index(Router $router) {
-        if(!is_auth()) {
+        if(!is_admin()) {
             header('Location: /signin');
             return;
         }
@@ -20,6 +20,7 @@ class RegisteredController {
 
         if(!$current_page || $current_page < 1) {
             header('location: /admin/registered?page=1');
+            return;
         }
 
         $records_per_page = 10;
@@ -28,6 +29,7 @@ class RegisteredController {
         
         if($pagination->total_pages() < $current_page) {
             header('location: /admin/registered?page=1');
+            return;
         }
 
         $registered = Registration::paginate($records_per_page, $pagination->offset());

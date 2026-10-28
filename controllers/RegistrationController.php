@@ -47,6 +47,7 @@ class RegistrationController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_auth()) {
                 header('Location: /signin');
+                return;
             }
 
             // Verify if user is registered
