@@ -50,10 +50,11 @@ class RegistrationController
                 return;
             }
 
-            // Verify if user is registered
+            // Any existing registration, paid or free, blocks a second one;
+            // /complete-registration sends the user to their ticket or conference picker
             $registration = Registration::where('user_id', $_SESSION['id']);
-            if (isset($registration) && (int) $registration->package_id === 3) {
-                header('Location: /ticket?id=' . urlencode($registration->token));
+            if (isset($registration)) {
+                header('Location: /complete-registration');
                 return;
             }
 
@@ -119,16 +120,29 @@ class RegistrationController
                 return;
             }
 
-            // Validate that Post does not come empty  
-            if (empty($_POST)) {
-                echo json_encode([]);
+            // Only paid packages (1 in-person, 2 online) go through this endpoint
+            $package_id = filter_var($_POST['package_id'] ?? '', FILTER_VALIDATE_INT);
+            $pay_id = trim($_POST['pay_id'] ?? '');
+
+            if (!in_array($package_id, [1, 2], true) || $pay_id === '') {
+                echo json_encode(['result' => false]);
                 return;
             }
 
-            // Create Record
-            $data = $_POST;
-            $data['token'] = substr(md5(uniqid(rand(), true)), 0, 8);
-            $data['user_id'] = $_SESSION['id'];
+            // One registration per user, and one registration per payment
+            if (Registration::where('user_id', $_SESSION['id']) || Registration::where('pay_id', $pay_id)) {
+                echo json_encode(['result' => false]);
+                return;
+            }
+
+            // Build the record field by field: copying $_POST let the client set id (overwriting
+            // another user's registration through update()), user_id, token or gift_id
+            $data = [
+                'package_id' => $package_id,
+                'pay_id' => $pay_id,
+                'token' => substr(md5(uniqid(rand(), true)), 0, 8),
+                'user_id' => $_SESSION['id']
+            ];
 
             try {
                 $registration = new Registration($data);
@@ -136,7 +150,7 @@ class RegistrationController
                 echo json_encode($result);
             } catch (\Throwable $th) {
                 echo json_encode([
-                    'result' => 'error'
+                    'result' => false
                 ]);
             }
         }
