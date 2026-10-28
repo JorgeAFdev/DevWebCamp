@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.5-apache
 
 # Start from the production ini template: the base image ships no php.ini, so the
 # compiled defaults (display_errors=On, expose_php=On) would leak DB host/user in
@@ -8,7 +8,7 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 # System libs for GD (WebP/PNG/JPEG) required by intervention/image, plus curl
 # for the healthcheck and unzip for composer.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libpng-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev \
+        libpng-dev libjpeg62-turbo-dev libfreetype-dev libwebp-dev \
         unzip curl \
     && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
     && docker-php-ext-install -j"$(nproc)" gd mysqli \
