@@ -32,12 +32,12 @@ class ActiveRecord
     }
 
     // SQL query to create an object in memory
-    public static function querySQL($query)
+    public static function querySQL($query, $params = [])
     {
         // Query the database.
-        $result = self::$db->query($query);
+        $result = self::$db->execute_query($query, $params);
 
-        // Iterate the results 
+        // Iterate the results
         $array = [];
         while ($record = $result->fetch_assoc()) {
             $array[] = static::createObject($record);
@@ -74,15 +74,38 @@ class ActiveRecord
         return $attributes;
     }
 
-    // Sanitize data before saving to DB
-    public function sanitizeAttributes()
+    // Null is stored as an empty string, as the escaping code before prepared statements did
+    protected function valuesForDB()
     {
-        $attributes = $this->attributes();
-        $sanitized = [];
-        foreach ($attributes as $key => $value) {
-            $sanitized[$key] = is_null($value) ? '' : self::$db->escape_string($value);
+        return array_map(fn($value) => $value ?? '', $this->attributes());
+    }
+
+    // Column names and sort directions cannot be placeholders, so they are checked against known values
+    protected static function column($column)
+    {
+        if (!in_array($column, static::$columnsDB, true)) {
+            throw new \InvalidArgumentException("Unknown column: $column");
         }
-        return $sanitized;
+        return $column;
+    }
+
+    protected static function direction($order)
+    {
+        $order = strtoupper($order);
+        if ($order !== 'ASC' && $order !== 'DESC') {
+            throw new \InvalidArgumentException("Invalid sort direction: $order");
+        }
+        return $order;
+    }
+
+    // Build "col1 = ? AND col2 = ?" for an array of column => value
+    protected static function conditions($array)
+    {
+        $conditions = [];
+        foreach (array_keys($array) as $column) {
+            $conditions[] = static::column($column) . " = ?";
+        }
+        return join(' AND ', $conditions);
     }
 
     // Synchronize DB with Objects in memory
@@ -112,7 +135,7 @@ class ActiveRecord
     // All records
     public static function all($order = 'DESC')
     {
-        $query = "SELECT * FROM " . static::$table . " ORDER BY id " . $order;
+        $query = "SELECT * FROM " . static::$table . " ORDER BY id " . static::direction($order);
         $result = self::querySQL($query);
         return $result;
     }
@@ -120,15 +143,15 @@ class ActiveRecord
     // Search for a record by its ID
     public static function find($id)
     {
-        $query = "SELECT * FROM " . static::$table  . " WHERE id = " . $id;
-        $result = self::querySQL($query);
+        $query = "SELECT * FROM " . static::$table  . " WHERE id = ?";
+        $result = self::querySQL($query, [$id]);
         return array_shift($result);
     }
 
     // Get records with a limit
     public static function get($limit)
     {
-        $query = "SELECT * FROM " . static::$table . " ORDER BY id DESC" . " LIMIT " . $limit;
+        $query = "SELECT * FROM " . static::$table . " ORDER BY id DESC" . " LIMIT " . (int) $limit;
         $result = self::querySQL($query);
         return $result;
     }
@@ -136,7 +159,7 @@ class ActiveRecord
     // Paginate Records
     public static function paginate($per_page, $offset)
     {
-        $query = "SELECT * FROM " . static::$table . " ORDER BY id DESC LIMIT " . $per_page . " OFFSET " . $offset;
+        $query = "SELECT * FROM " . static::$table . " ORDER BY id DESC LIMIT " . (int) $per_page . " OFFSET " . (int) $offset;
         $result = self::querySQL($query);
         return $result;
     }
@@ -144,15 +167,15 @@ class ActiveRecord
     // Find a record by column and value
     public static function where($column, $value)
     {
-        $query = "SELECT * FROM " . static::$table  . " WHERE $column = '" . $value . "'";
-        $result = self::querySQL($query);
+        $query = "SELECT * FROM " . static::$table  . " WHERE " . static::column($column) . " = ?";
+        $result = self::querySQL($query, [$value]);
         return array_shift($result);
     }
 
     // Return the records in a specific order
     public static function order($column, $order)
     {
-        $query = "SELECT * FROM " . static::$table  . " ORDER BY $column " . $order;
+        $query = "SELECT * FROM " . static::$table  . " ORDER BY " . static::column($column) . " " . static::direction($order);
         $result = self::querySQL($query);
         return $result;
     }
@@ -160,7 +183,7 @@ class ActiveRecord
     // Return the records in a specific order and limit
     public static function orderLimit($column, $order, $limit)
     {
-        $query = "SELECT * FROM " . static::$table  . " ORDER BY $column " . $order . " LIMIT " . $limit;
+        $query = "SELECT * FROM " . static::$table  . " ORDER BY " . static::column($column) . " " . static::direction($order) . " LIMIT " . (int) $limit;
         $result = self::querySQL($query);
         return $result;
     }
@@ -168,15 +191,8 @@ class ActiveRecord
     // Find a record by Multiple options
     public static function whereArray($array = [])
     {
-        $query = "SELECT * FROM " . static::$table  . " WHERE ";
-        foreach ($array as $key => $value) {
-            if ($key == array_key_last($array)) {
-                $query .= " " . $key . " = '" . $value . "'";
-            } else {
-                $query .= " " . $key . " = '" . $value . "' AND ";
-            }
-        }
-        $result = self::querySQL($query);
+        $query = "SELECT * FROM " . static::$table  . " WHERE " . static::conditions($array);
+        $result = self::querySQL($query, array_values($array));
         return $result;
     }
 
@@ -184,11 +200,13 @@ class ActiveRecord
     public static function total($column = '', $value = '')
     {
         $query = "SELECT COUNT(*) FROM " . static::$table;
+        $params = [];
 
         if ($column) {
-            $query .= " WHERE " . $column . " = " . $value;
+            $query .= " WHERE " . static::column($column) . " = ?";
+            $params[] = $value;
         }
-        $result = self::$db->query($query);
+        $result = self::$db->execute_query($query, $params);
         $total = $result->fetch_array();
 
         return array_shift($total);
@@ -197,15 +215,8 @@ class ActiveRecord
     // Get Total Records with Array Where
     public static function totalArray($array = [])
     {
-        $query = "SELECT COUNT(*) FROM " . static::$table . " WHERE ";
-        foreach ($array as $key => $value) {
-            if ($key == array_key_last($array)) {
-                $query .= " " . $key . " = '" . $value . "'";
-            } else {
-                $query .= " " . $key . " = '" . $value . "' AND ";
-            }
-        }
-        $result = self::$db->query($query);
+        $query = "SELECT COUNT(*) FROM " . static::$table . " WHERE " . static::conditions($array);
+        $result = self::$db->execute_query($query, array_values($array));
         $total = $result->fetch_array();
         return array_shift($total);
     }
@@ -213,20 +224,17 @@ class ActiveRecord
     // Create a new record
     public function create()
     {
-        // Sanitize the data
-        $attributes = $this->sanitizeAttributes();
+        $attributes = $this->valuesForDB();
 
         // Insert into the database
         $query = " INSERT INTO " . static::$table . " ( ";
         $query .= join(', ', array_keys($attributes));
-        $query .= " ) VALUES ('";
-        $query .= join("', '", array_values($attributes));
-        $query .= " ') ";
-
-        // return json_encode(['query' => $query]);
+        $query .= " ) VALUES (";
+        $query .= join(', ', array_fill(0, count($attributes), '?'));
+        $query .= ") ";
 
         // query results
-        $result = self::$db->query($query);
+        $result = self::$db->execute_query($query, array_values($attributes));
         return [
             'result' =>  $result,
             'id' => self::$db->insert_id
@@ -236,31 +244,30 @@ class ActiveRecord
     // Update record
     public function update()
     {
-        // sanitize the data
-        $attributes = $this->sanitizeAttributes();
+        $attributes = $this->valuesForDB();
 
         // Iterate to add each field from the database
         $valores = [];
-        foreach ($attributes as $key => $value) {
-            $valores[] = "{$key}='{$value}'";
+        foreach (array_keys($attributes) as $key) {
+            $valores[] = "{$key} = ?";
         }
 
         // SQL query
         $query = "UPDATE " . static::$table . " SET ";
         $query .=  join(', ', $valores);
-        $query .= " WHERE id = '" . self::$db->escape_string($this->id) . "' ";
+        $query .= " WHERE id = ? ";
         $query .= " LIMIT 1 ";
 
         // Update BD
-        $result = self::$db->query($query);
+        $result = self::$db->execute_query($query, [...array_values($attributes), $this->id]);
         return $result;
     }
 
     // Delete a record by its id
     public function delete()
     {
-        $query = "DELETE FROM "  . static::$table . " WHERE id = " . self::$db->escape_string($this->id) . " LIMIT 1";
-        $result = self::$db->query($query);
+        $query = "DELETE FROM "  . static::$table . " WHERE id = ? LIMIT 1";
+        $result = self::$db->execute_query($query, [$this->id]);
         return $result;
     }
 }

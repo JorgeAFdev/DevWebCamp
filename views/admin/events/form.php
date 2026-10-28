@@ -22,7 +22,7 @@
         <select class="form__select" id="category" name="category_id">
             <option value="" selected disabled>- Select -</option>
             <?php foreach($categories as $category) { ?>
-                <option <?php echo ($event->category_id === $category->id) ? 'selected' : ''; ?> value="<?php echo sanitizeHTML($category->id); ?>"><?php echo $category->name; ?></option>
+                <option <?php echo ((int) $event->category_id === (int) $category->id) ? 'selected' : ''; ?> value="<?php echo sanitizeHTML($category->id); ?>"><?php echo $category->name; ?></option>
             <?php } ?>
         </select>
         <?php if (isset($alerts['error']['category'])) { ?>
@@ -37,7 +37,7 @@
                 <div>
                     <label for="<?php echo strtolower($day->name); ?>"><?php echo $day->name; ?></label>
                     <input type="radio" id="<?php echo strtolower($day->name); ?>" name="day" value="<?php echo sanitizeHTML($day->id); ?>" 
-                    <?php echo ($event->day_id === $day->id) ? 'checked' : ''; ?>>
+                    <?php echo ((int) $event->day_id === (int) $day->id) ? 'checked' : ''; ?>>
                 </div>
             <?php } ?>
         </div>

@@ -27,12 +27,12 @@ class RegistrationController
         // Verify if user is registered
         $registration = Registration::where('user_id', $_SESSION['id']);
 
-        if (isset($registration) && ($registration->package_id === '3' || $registration->package_id === '2')) {
+        if (isset($registration) && ((int) $registration->package_id === 3 || (int) $registration->package_id === 2)) {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
-        if (isset($registration) && $registration->package_id === "1") {
+        if (isset($registration) && (int) $registration->package_id === 1) {
             header('Location: /complete-registration/conferences');
             return;
         }
@@ -52,7 +52,7 @@ class RegistrationController
 
             // Verify if user is registered
             $registration = Registration::where('user_id', $_SESSION['id']);
-            if (isset($registration) && $registration->package_id === '3') {
+            if (isset($registration) && (int) $registration->package_id === 3) {
                 header('Location: /ticket?id=' . urlencode($registration->token));
                 return;
             }
@@ -153,18 +153,18 @@ class RegistrationController
         $user_id = $_SESSION['id'];
         $registration = Registration::where('user_id', $user_id);
 
-        if (isset($registration) && $registration->package_id === "2") {
+        if (isset($registration) && (int) $registration->package_id === 2) {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
-        if ($registration->package_id !== "1") {
+        if ((int) $registration->package_id !== 1) {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
 
         // Redirect to virtual ticket in case registration is finished
-        if ($registration->gift_id !== "1") {
+        if ((int) $registration->gift_id !== 1) {
             header('Location: /ticket?id=' . urlencode($registration->token));
             return;
         }
@@ -186,19 +186,19 @@ class RegistrationController
                 'speaker' => $speaker
             ];
 
-            if ($event->day_id === '1' && $event->category_id === '1') {
+            if ((int) $event->day_id === 1 && (int) $event->category_id === 1) {
                 $formatted_events['conferences_f'][] = $formatted_event;
             }
 
-            if ($event->day_id === '2' && $event->category_id === '1') {
+            if ((int) $event->day_id === 2 && (int) $event->category_id === 1) {
                 $formatted_events['conferences_s'][] = $formatted_event;
             }
 
-            if ($event->day_id === '1' && $event->category_id === '2') {
+            if ((int) $event->day_id === 1 && (int) $event->category_id === 2) {
                 $formatted_events['workshops_f'][] = $formatted_event;
             }
 
-            if ($event->day_id === '2' && $event->category_id === '2') {
+            if ((int) $event->day_id === 2 && (int) $event->category_id === 2) {
                 $formatted_events['workshops_s'][] = $formatted_event;
             }
         }
@@ -221,7 +221,7 @@ class RegistrationController
 
             // Get user registration
             $registration = Registration::where('user_id', $_SESSION['id']);
-            if (!isset($registration) || $registration->package_id !== '1') {
+            if (!isset($registration) || (int) $registration->package_id !== 1) {
                 echo json_encode(['result' => false]);
                 return;
             }
@@ -231,7 +231,7 @@ class RegistrationController
             foreach ($events as $event_id) {
                 $event = Event::find($event_id);
                 // Check that the event exists
-                if (!isset($event) || $event->spots === "0") {
+                if (!isset($event) || (int) $event->spots === 0) {
                     echo json_encode(['result' => false]);
                     return;
                 }

@@ -49,7 +49,7 @@
                 <option value="" selected disabled>-- Select your gift --</option>
                 <?php foreach ($gifts as $gift) {
                     // Skip gift with ID 1
-                    if ($gift->id === "1") {
+                    if ((int) $gift->id === 1) {
                         continue;
                     }
                 ?>

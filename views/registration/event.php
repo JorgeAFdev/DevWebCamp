@@ -19,8 +19,8 @@
                 </p>
             </div>
 
-            <button type="button" data-id="<?php echo $event['event']->id; ?>" class="event__add no-redirect-button " <?php echo ($event['event']->spots === "0") ? 'disabled' : ''; ?>>
-                <?php echo ($event['event']->spots === "0") ? 'No Spots Left' : 'Add - ' .  $event['event']->spots . ' Spots left'; ?>
+            <button type="button" data-id="<?php echo $event['event']->id; ?>" class="event__add no-redirect-button " <?php echo ((int) $event['event']->spots === 0) ? 'disabled' : ''; ?>>
+                <?php echo ((int) $event['event']->spots === 0) ? 'No Spots Left' : 'Add - ' .  $event['event']->spots . ' Spots left'; ?>
             </button>
         </div>
     </a>

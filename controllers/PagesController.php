@@ -31,19 +31,19 @@ class PagesController
                 'speaker' => $speaker
             ];
 
-            if ($day->id === '1' && $category->id === '1') {
+            if ((int) $day->id === 1 && (int) $category->id === 1) {
                 $formatted_events['conferences_f'][] = $formatted_event;
             }
 
-            if ($day->id === '2' && $category->id === '1') {
+            if ((int) $day->id === 2 && (int) $category->id === 1) {
                 $formatted_events['conferences_s'][] = $formatted_event;
             }
 
-            if ($day->id === '1' && $category->id === '2') {
+            if ((int) $day->id === 1 && (int) $category->id === 2) {
                 $formatted_events['workshops_f'][] = $formatted_event;
             }
 
-            if ($day->id === '2' && $category->id === '2') {
+            if ((int) $day->id === 2 && (int) $category->id === 2) {
                 $formatted_events['workshops_s'][] = $formatted_event;
             }
         }
@@ -103,19 +103,19 @@ class PagesController
                 'speaker' => $speaker
             ];
 
-            if ($day->id === '1' && $category->id === '1') {
+            if ((int) $day->id === 1 && (int) $category->id === 1) {
                 $formatted_events['conferences_f'][] = $formatted_event;
             }
 
-            if ($day->id === '2' && $category->id === '1') {
+            if ((int) $day->id === 2 && (int) $category->id === 1) {
                 $formatted_events['conferences_s'][] = $formatted_event;
             }
 
-            if ($day->id === '1' && $category->id === '2') {
+            if ((int) $day->id === 1 && (int) $category->id === 2) {
                 $formatted_events['workshops_f'][] = $formatted_event;
             }
 
-            if ($day->id === '2' && $category->id === '2') {
+            if ((int) $day->id === 2 && (int) $category->id === 2) {
                 $formatted_events['workshops_s'][] = $formatted_event;
             }
         }
