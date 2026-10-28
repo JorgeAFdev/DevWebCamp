@@ -11,7 +11,7 @@ class SpeakersController {
 
     public static function index(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
 
@@ -20,6 +20,7 @@ class SpeakersController {
 
         if(!$current_page || $current_page < 1) {
             header('location: /admin/speakers?page=1');
+            return;
         }
 
         $records_per_page = 10;
@@ -28,6 +29,7 @@ class SpeakersController {
         
         if($pagination->total_pages() < $current_page) {
             header('location: /admin/speakers?page=1');
+            return;
         }
 
         $speakers = Speaker::paginate($records_per_page, $pagination->offset());
@@ -41,7 +43,7 @@ class SpeakersController {
 
     public static function create(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
         $alerts = [];
@@ -99,7 +101,7 @@ class SpeakersController {
 
     public static function edit(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
         $alerts = [];
@@ -174,13 +176,14 @@ class SpeakersController {
     public static function delete() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!is_admin()) {
-                header('Location: /sign-in');
+                header('Location: /signin');
                 return;
             }
             $id = $_POST['id'];
             $speaker = Speaker::find($id);
             if(!isset($speaker)) {
                 header('Location: /admin/speakers');
+                return;
             }
 
             // Delete the associated image

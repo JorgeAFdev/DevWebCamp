@@ -13,7 +13,7 @@ class EventsController {
 
     public static function index(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
         $current_page = $_GET['page'] ?? '';
@@ -21,6 +21,7 @@ class EventsController {
 
         if(!$current_page || $current_page < 1) {
             header('Location: /admin/events?page=1');
+            return;
         }
 
         $records_per_page = 10;
@@ -53,7 +54,7 @@ class EventsController {
 
     public static function create(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
         $alerts = [];
@@ -89,7 +90,7 @@ class EventsController {
 
     public static function edit(Router $router) {
         if(!is_admin()) {
-            header('Location: /sign-in');
+            header('Location: /signin');
             return;
         }
         $alerts = [];
@@ -99,6 +100,7 @@ class EventsController {
 
         if(!$id) {
             header('Location: /admin/events');
+            return;
         }
 
         $categories = Category::all('ASC');
@@ -109,6 +111,7 @@ class EventsController {
 
         if(!$event) {
             header('Location: /admin/events');
+            return;
         }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -137,17 +140,19 @@ class EventsController {
     public static function delete() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!is_admin()) {
-                header('Location: /sign-in');
+                header('Location: /signin');
+                return;
             }
             $id = $_POST['id'];
             $event = Event::find($id);
             if(!isset($event)) {
                 header('Location: /admin/events');
+                return;
             }
-        }
-        $result = $event->delete();
-        if($result) {
-            header('Location: /admin/events');
+            $result = $event->delete();
+            if($result) {
+                header('Location: /admin/events');
+            }
         }
     }
 }

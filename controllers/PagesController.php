@@ -138,6 +138,7 @@ class PagesController
 
         if (!$id) {
             header('Location: /');
+            return;
         }
 
         $event = Event::find($id);
